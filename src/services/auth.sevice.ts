@@ -13,7 +13,6 @@ import {
   regexUsername,
 } from "../utils/validate.util";
 import { AuthenticationError } from "../utils/errors/AuthenticationError";
-import { emit } from "process";
 
 // -------------- CHILD FUNCTION ----------------
 async function sendEmail(
@@ -51,226 +50,249 @@ async function sendEmail(
   return info;
 }
 
-async function validateSignup(
-  userName: string,
-  email: string,
-  password: string
-) {
-  if (!userName || !email || !password) {
-    throw new BadRequestError("All fields are required");
-  }
-
-  if (!regexUsername.test(userName)) {
-    throw new BadRequestError(
-      "Username is not valid: Usernames contain only alphabetic characters (a-z, A-Z), numbers (0-9), underscores (_), periods (.), and hyphens (-). Usernames do not contain spaces and do not begin with special characters."
-    );
-  }
-
-  if (!regexPassword.test(password)) {
-    throw new BadRequestError(
-      "Password is not valid :Password at least 8 characters, including at least one uppercase letter, one lowercase letter, and one number."
-    );
-  }
-
-  if (!regexEmail.test(email)) {
-    throw new BadRequestError("Email is not valid");
-  }
-
-  const existEmail = await _User.find({ email });
-  if (existEmail.length) {
-    throw new BadRequestError("Email already exists");
-  }
-}
-
-// ------------------------ MAIN FUNCTION ----------------------------
-// --------------------------- AUTH ----------------------------------
-export async function register(
-  userName: string,
-  email: string,
-  password: string
-) {
-  try {
-    await validateSignup(userName, email, password);
-
-    const hashPassword = await bcrypt.hash(password, config.salt);
-    const newUser = new _User({
-      username: userName,
-      email: email,
-      password: hashPassword,
-    });
-
-    newUser.save();
-    return newUser;
-  } catch (e) {
-    throw e;
-  }
-}
-
-export async function sendOTP(subject: string, email: string) {
-  const otp = Math.floor(100000 + Math.random() * 900000);
-  await sendEmail(
-    email,
-    otp,
-    subject,
-    "Use the following OTP to complete your work procedures. OTP is valid for 5 minutes.",
-    "Admin"
-  );
-
-  const data = {
-    email,
-    otp,
-  };
-
-  const token: string = generateToken(data, "5m");
-  return token;
-}
-
-export async function verifyOTP(token: string, otp: number) {
+function verifyOTP(token: string, otp: number) {
   const data = decodeToken(token) as JwtData;
   const payload = data.payload as verifyOTP;
   if (payload.otp != otp) {
     throw new BadRequestError("OTP is wrong");
   }
 
-  const user = await _User.findOne({ email: payload.email });
-  if (user) {
-    user.isVerify = true;
-    await user.save();
-    return user;
-  }
-
-  throw new Error("User not found");
+  return payload;
 }
 
-export async function login(email: string, password: string) {
-  const user = await _User.findOne({ email });
-  if (!user) {
-    throw new BadRequestError("Email is not already");
+// ------------------------ MAIN FUNCTION ----------------------------
+// --------------------------- AUTH ----------------------------------
+class AuthService {
+  async signup(userName: string, email: string, password: string) {
+    try {
+      if (!userName || !email || !password) {
+        throw new BadRequestError("All fields are required");
+      }
+
+      if (!regexUsername.test(userName)) {
+        throw new BadRequestError(
+          "Username is not valid: Usernames contain only alphabetic characters (a-z, A-Z), numbers (0-9), underscores (_), periods (.), and hyphens (-). Usernames do not contain spaces and do not begin with special characters."
+        );
+      }
+
+      if (!regexPassword.test(password)) {
+        throw new BadRequestError(
+          "Password is not valid :Password at least 8 characters, including at least one uppercase letter, one lowercase letter, and one number."
+        );
+      }
+
+      if (!regexEmail.test(email)) {
+        throw new BadRequestError("Email is not valid");
+      }
+
+      const existEmail = await _User.find({ email });
+      if (existEmail.length) {
+        throw new BadRequestError("Email already exists");
+      }
+
+      const hashPassword = await bcrypt.hash(password, config.salt);
+      const newUser = new _User({
+        username: userName,
+        email: email,
+        password: hashPassword,
+      });
+
+      await newUser.save();
+      return newUser;
+    } catch (e) {
+      throw e;
+    }
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new BadRequestError("Password is wrong");
+  async signin(email: string, password: string) {
+    try {
+      const user = await _User.findOne({ email });
+      if (!user) {
+        throw new BadRequestError("Email is not already");
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        throw new BadRequestError("Password is wrong");
+      }
+
+      const data = { userId: user._id, role: user.role };
+
+      const accessToken = generateToken(data, "24h");
+
+      const refreshToken = generateToken(data, "30 days");
+
+      const token = new _Token({ userId: user._id, token: refreshToken });
+      await token.save();
+
+      return {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
-  const data = { userId: user._id, role: user.role };
+  async refreshToken(refreshToken: string) {
+    try {
+      const tokenRecord = await _Token.findOne({ token: refreshToken });
+      if (!tokenRecord) {
+        throw new AuthenticationError();
+      }
 
-  const accessToken = generateToken(data, "24h");
+      const data = decodeToken(refreshToken) as object;
 
-  const refreshToken = generateToken(data, "30 days");
+      const accessToken = generateToken(data, "24h");
 
-  const token = new _Token({ userId: user._id, token: refreshToken });
-  token.save();
+      const newRefreshToken = generateToken(data, "30 days");
 
-  return {
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-  };
+      tokenRecord.token = newRefreshToken;
+      await tokenRecord.save();
+
+      return {
+        accessToken: accessToken,
+        refreshToken: newRefreshToken,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async signout(authHeader: string, refreshToken: string) {
+    try {
+      const tokenRecord = await _Token.findOneAndDelete({
+        token: refreshToken,
+      });
+      if (!tokenRecord) {
+        throw new BadRequestError("Token is not valid");
+      }
+      if (!authHeader) {
+        throw new AuthenticationError();
+      }
+      const bearer = "Bearer ";
+      const accessToken = authHeader.replace(bearer, "");
+      // await BlackList.push_token(accessToken, "logout");
+
+      return "Log out successfully";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async changePassword(
+    currentUser: string,
+    currentPassword: string,
+    newPassword: string
+  ) {
+    try {
+      const user = await _User.findById({ userId: currentUser });
+      if (!user) {
+        throw new AuthenticationError();
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        throw new BadRequestError("Password in not correct!");
+      }
+
+      const password = await bcrypt.hash(newPassword, config.salt);
+      user.password = password;
+      await user.save();
+
+      return "Changed password successfully";
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async requestVerify(subject: string, email: string) {
+    try {
+      const otp = Math.floor(100000 + Math.random() * 900000);
+      await sendEmail(
+        email,
+        otp,
+        subject,
+        "Use the following OTP to complete your work procedures. OTP is valid for 5 minutes.",
+        "Admin"
+      );
+
+      const data = {
+        email,
+        otp,
+      };
+
+      const token: string = generateToken(data, "5m");
+      return token;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyEmail(token: string, otp: number) {
+    try {
+      const data = verifyOTP(token, otp) as verifyOTP;
+      const user = await _User.findOne({ email: data.email });
+      if (user) {
+        if (user.isVerify == true) {
+          throw new Error("User is verified");
+        }
+        user.isVerify = true;
+        await user.save();
+        return user;
+      }
+
+      throw new Error("User not found");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async resetPassword(token: string, otp: number, password: string) {
+    try {
+      const data = verifyOTP(token, otp) as verifyOTP;
+
+      const user = await _User.findOne({ email: data.email });
+      if (user) {
+        if (password) {
+          const newPassword = await bcrypt.hash(password, config.salt);
+          user.password = newPassword;
+          await user.save();
+          return "Reset password successfully";
+        }
+        throw new Error("Missing password!");
+      }
+      throw new Error("User is not found!");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async forgotPassword(token: string, otp: number) {
+    try {
+      const result = verifyOTP(token, otp) as verifyOTP;
+
+      const user = await _User.findOne({ email: result.email });
+      if (!user) {
+        throw new Error("User is not found!");
+      }
+
+      const data = { userId: user._id, role: user.role };
+      const accessToken = generateToken(data, "24h");
+
+      const refreshToken = generateToken(data, "30 days");
+
+      const tokenRecord = new _Token({ userId: user._id, token: refreshToken });
+      await tokenRecord.save();
+
+      return {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
-export async function refresh(refreshToken: string) {
-  const tokenRecord = await _Token.findOne({ token: refreshToken });
-  if (!tokenRecord) {
-    throw new AuthenticationError();
-  }
-
-  const data = decodeToken(refreshToken) as object;
-
-  const accessToken = generateToken(data, "24h");
-
-  const newRefreshToken = generateToken(data, "30 days");
-
-  tokenRecord.token = newRefreshToken;
-  tokenRecord.save();
-
-  return {
-    accessToken: accessToken,
-    refreshToken: newRefreshToken,
-  };
-}
-
-export async function logout(authHeader: string, refreshToken: string) {
-  const tokenRecord = await _Token.findOneAndDelete({ token: refreshToken });
-  if (!tokenRecord) {
-    throw new BadRequestError("Token is not valid");
-  }
-  if (!authHeader) {
-    throw new AuthenticationError();
-  }
-  const bearer = "Bearer ";
-  const accessToken = authHeader.replace(bearer, "");
-  // await BlackList.push_token(accessToken, "logout");
-
-  return "Log out successfully";
-}
-
-export async function changePassword(
-  currentUser: string,
-  currentPassword: string,
-  newPassword: string
-) {
-  const user = await _User.findById({ userId: currentUser });
-  if (!user) {
-    throw new AuthenticationError();
-  }
-
-  const isMatch = await bcrypt.compare(currentPassword, user.password);
-  if (!isMatch) {
-    throw new BadRequestError("Password in not correct!");
-  }
-
-  const password = await bcrypt.hash(newPassword, config.salt);
-  user.password = password;
-  user.save();
-
-  return "Changed password successfully";
-}
-
-// export async function resetPassword(body) {
-//   this.verifyOTP(body);
-
-//   const email = body.email.toLowerCase();
-
-//   const user = await User.findOne({ email });
-//   if (!user) {
-//     throw new E(400, "Email is not already");
-//   }
-
-//   const password = await bcrypt.hash(body.password, 5);
-//   user.password = password;
-//   user.save();
-
-//   return "Reset password successfully";
-// }
-
-// export async function forgotPassword(body) {
-//   this.verifyOTP(body);
-
-//   const email = body.email.toLowerCase();
-//   const user = await User.findOne({ email });
-//   if (!user) {
-//     throw new E(400, "Email is not already");
-//   }
-
-//   const data = { userId: user._id, role: user.role };
-
-//   const accessToken = jwt.sign(
-//     data,
-//     process.env.TOKEN_SECRET,
-//     { expiresIn: 60 * 10 } // 10 minutes
-//   );
-
-//   const refreshToken = jwt.sign(
-//     data,
-//     process.env.TOKEN_SECRET,
-//     { expiresIn: 60 * 60 * 24 * 30 } // 30 days
-//   );
-
-//   const token = new Token({ userId: user._id, token: refreshToken });
-//   token.save();
-
-//   return {
-//     accessToken: accessToken,
-//     refreshToken: refreshToken,
-//   };
-// }
+export default new AuthService();

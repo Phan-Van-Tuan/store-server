@@ -1,7 +1,7 @@
 import express from "express";
 import orderRouter from "./order.router";
 import paymentRouter from "./payment.router";
-import userRouter from "./user.router";
+import userRouter from "./auth.router";
 
 const router = express.Router();
 
