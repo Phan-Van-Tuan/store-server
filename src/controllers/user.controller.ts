@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { register, verifyOTP } from "../services/user.sevice";
+import {
+  login,
+  logout,
+  refresh,
+  register,
+  verifyOTP,
+} from "../services/auth.sevice";
 
-export const signUp = async (
+export const signup = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -29,62 +35,78 @@ export const verifyEmail = async (
   }
 };
 
-export async function login(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     const { userNameOrEmail, password } = req.body;
-  //     const dataLogin = {
-  //       userName: userNameOrEmail,
-  //       email: userNameOrEmail,
-  //       password: password,
-  //     };
-  //     if (!userNameOrEmail || !password) {
-  //       return res.status(400).json({
-  //         error: "All fields are required",
-  //       });
-  //     }
-  //     let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-  //     const data = regexEmail.test(userNameOrEmail)
-  //       ? { email: userNameOrEmail, userName: null }
-  //       : { userName: userNameOrEmail, email: null };
-  //     const user = await User.getUser(data);
-  //     const existPassword = await User.getPassword(data);
-  //     password.toString();
-  //     console.log(existPassword[0].password);
-  //     existPassword[0].password.toString();
-  //     const comparePassword = await User.comparePassword(
-  //       password,
-  //       existPassword[0].password
-  //     );
-  //     console.log(comparePassword);
-  //     if (!user) {
-  //       return res.status(400).json({
-  //         error: "User not found",
-  //       });
-  //     }
-  //     if (user && comparePassword === true) {
-  //       const email = user.email;
-  //       const token = jwt.sign({ user: email }, process.env.TOKEN_SECRET_KEY, {
-  //         expiresIn: "2h",
-  //       });
-  //       user.token = token;
-  //       console.log(user.token);
-  //       return res.status(200).json({
-  //         message: "User logged in successfully",
-  //         user,
-  //       });
-  //     } else if (user && comparePassword === false) {
-  //       return res.status(400).json({
-  //         error: "Password is incorrect",
-  //       });
-  //     }
-  //     res.status(200).json({
-  //       message: "User logged in successfully",
-  //       user,
-  //     });
-  //   } catch (err) {
-  //     next(err);
-  //   }
-}
+export const signin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+    const result = await login(email.lowercase(), password);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { refreshToken } = req.body;
+    const result = await refresh(refreshToken);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { refreshToken } = req.body;
+    const authHeader = req.headers["authorization"] || "";
+    const result = await logout(authHeader, refreshToken);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const reset = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { refreshToken } = req.body;
+    const authHeader = req.headers["authorization"] || "";
+    const result = await logout(authHeader, refreshToken);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// export const signout = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const { refreshToken } = req.body;
+//     const authHeader = req.headers["authorization"] || "";
+//     const result = await logout(authHeader, refreshToken);
+//     res.status(200).json(result);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 // Lấy danh sách đơn hàng
 export const getOrders = (req: Request, res: Response, next: NextFunction) => {

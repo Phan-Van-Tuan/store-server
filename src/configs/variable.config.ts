@@ -10,12 +10,13 @@ export const config = {
   port: process.env.PORT || 3003,
 
   //db
-  dbHost: process.env.DB_HOST || "localhost",
-  dbUser: process.env.DB_USER || "myuser",
+  dbHost: process.env.DB_HOST || "127.0.0.1:27017",
+  dbName: process.env.DB_NAME || "store",
   dbPass: process.env.DB_PASS || "mypassword",
 
-  // jwt
+  // encode
   secretKey: process.env.JWT_SECRET_KEY || "mysecretkey",
+  salt: process.env.BCRYPT_SALT || 10,
 
   // send email
   myEmail: process.env.EMAIL_USERNAME,

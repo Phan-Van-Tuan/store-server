@@ -4,9 +4,7 @@ export interface JwtData {
   exp: number;
 }
 
-export interface signupPayload {
-  userName: string;
+export interface verifyOTP {
   email: string;
-  password: string;
   otp: number;
 }
