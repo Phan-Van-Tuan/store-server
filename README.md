@@ -1,6 +1,6 @@
 # **Store Server**
 
-## Hướng Dẫn Cài Đặt
+### Hướng Dẫn Cài Đặt
 
 Để cài đặt ứng dụng, hãy thực hiện các bước sau:
 
@@ -22,16 +22,7 @@
    npm run dev
 ```
 
-4. Nếu bạn cần kiểm tra mã nguồn, sử dụng:
-
-```typescript
-// Ví dụ mã TypeScript
-const message: string = "Hello, world!";
-console.log(message);
-```
-
-```markdown
-# Các API
+### Các API
 
 Để cài đặt ứng dụng, hãy thực hiện các bước sau:
 
@@ -40,4 +31,3 @@ console.log(message);
 
 * ỏder
   [Đăng kí] http://localhost:3003/api/v1/auth/signup
-```
