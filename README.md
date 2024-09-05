@@ -1,6 +1,6 @@
 # **Store Server**
 
-### Hướng Dẫn Cài Đặt
+## Hướng Dẫn Cài Đặt
 
 Để cài đặt ứng dụng, hãy thực hiện các bước sau:
 
@@ -22,12 +22,8 @@
    npm run dev
 ```
 
-### Các API
+## Các API
 
-Để cài đặt ứng dụng, hãy thực hiện các bước sau:
-
-- auth:
-  [Đăng kí] http://localhost:3003/api/v1/auth/signup
-
-* ỏder
-  [Đăng kí] http://localhost:3003/api/v1/auth/signup
+- [Đăng kí] http://localhost:3003/api/v1/auth/signup
+- [Đăng Nhập] http://localhost:3003/api/v1/auth/signin
+- [Đăng Xuất] http://localhost:3003/api/v1/auth/signout
