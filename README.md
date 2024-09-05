@@ -24,12 +24,8 @@
 
 ## Các API
 
-| Attempt   | #1                                        | #2  |
-| --------- | ----------------------------------------- | --- |
-| Đăng kí   | http://localhost:3003/api/v1/auth/signup  | 283 |
-| -------   | ---                                       | --- |
-| Đăng Nhập | http://localhost:3003/api/v1/auth/signin  | 283 |
-| -------   | ---                                       | --- |
-| Đăng Xuất | http://localhost:3003/api/v1/auth/signout | 283 |
-| -------   | ---                                       | --- |
-| Đăng kí   | http://localhost:3003/api/v1/auth/signout | 283 |
+| Attempt   | Method | Enpoint                                   | Request         | Response                  |
+| --------- | ------ | ----------------------------------------- | --------------- | ------------------------- |
+| Đăng kí   | POST   | http://localhost:3003/api/v1/auth/signup  | 283             |                           |
+| Đăng Nhập | POST   | http://localhost:3003/api/v1/auth/signin  | email, password | accessToken, refreshToken |
+| Đăng Xuất | POST   | http://localhost:3003/api/v1/auth/signout | 283             |                           |
