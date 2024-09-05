@@ -1,9 +1,6 @@
-### 4. **Store Server**
+# **Store Server**
 
-Đây là một hướng dẫn cơ bản về cách bạn có thể cài đặt và sử dụng dự án:
-
-````markdown
-# Hướng Dẫn Cài Đặt
+## Hướng Dẫn Cài Đặt
 
 Để cài đặt ứng dụng, hãy thực hiện các bước sau:
 
@@ -32,7 +29,6 @@
 const message: string = "Hello, world!";
 console.log(message);
 ```
-````
 
 ```markdown
 # Các API
