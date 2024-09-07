@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from "express";
 import AuthService from "../services/auth.sevice";
+import { Request, Response, NextFunction } from "express";
+import { decodePayload } from "../utils/interfaces/payload.interface";
 
 class AuthController {
   async signup(req: Request, res: Response, next: NextFunction) {
@@ -109,6 +110,14 @@ class AuthController {
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
     try {
+      const user = req.currentUser as decodePayload;
+      const { currentPassword, newPassword } = req.body;
+      const result = AuthService.changePassword(
+        user.userId,
+        currentPassword,
+        newPassword
+      );
+      return res.status(200).json(result);
     } catch (error) {
       next(error);
     }

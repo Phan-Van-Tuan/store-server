@@ -8,3 +8,9 @@ export interface verifyOTP {
   email: string;
   otp: number;
 }
+
+export interface decodePayload {
+  userId: string;
+  role: string;
+  isVerify: boolean;
+}

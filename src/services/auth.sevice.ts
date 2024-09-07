@@ -116,7 +116,11 @@ class AuthService {
         throw new BadRequestError("Password is wrong");
       }
 
-      const data = { userId: user._id, role: user.role };
+      const data = {
+        userId: user._id,
+        role: user.role,
+        isVerify: user.isVerify,
+      };
 
       const accessToken = generateToken(data, "24h");
 
@@ -141,11 +145,11 @@ class AuthService {
         throw new AuthenticationError();
       }
 
-      const data = decodeToken(refreshToken) as object;
+      const data = decodeToken(refreshToken) as JwtData;
 
-      const accessToken = generateToken(data, "24h");
+      const accessToken = generateToken(data.payload, "24h");
 
-      const newRefreshToken = generateToken(data, "30 days");
+      const newRefreshToken = generateToken(data.payload, "30 days");
 
       tokenRecord.token = newRefreshToken;
       await tokenRecord.save();
