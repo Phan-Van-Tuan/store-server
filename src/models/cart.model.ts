@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 
-interface IOrder {
+interface ICart {
   userId: mongoose.Schema.Types.ObjectId;
   products: { productId: mongoose.Schema.Types.ObjectId; quantity: number }[];
-  totalAmount: number;
-  status: "pending" | "shipped" | "delivered";
-  createdAt: Date;
 }
 
-const orderSchema = new mongoose.Schema<IOrder>({
+const cartSchema = new mongoose.Schema<ICart>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   products: [
     {
@@ -20,14 +17,7 @@ const orderSchema = new mongoose.Schema<IOrder>({
       quantity: { type: Number, required: true },
     },
   ],
-  totalAmount: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: ["pending", "shipped", "delivered"],
-    default: "pending",
-  },
-  createdAt: { type: Date, default: Date.now },
 });
 
-const Order = mongoose.model<IOrder>("Order", orderSchema);
-export default Order;
+const Cart = mongoose.model<ICart>("Cart", cartSchema);
+export default Cart;

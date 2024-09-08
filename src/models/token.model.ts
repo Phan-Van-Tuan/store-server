@@ -1,11 +1,17 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-const tokenSchema = new mongoose.Schema(
+interface IToken extends Document {
+  userId: mongoose.Schema.Types.ObjectId;
+  token: String;
+  expireAt: Date;
+}
+
+const tokenSchema: Schema = new mongoose.Schema<IToken>(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User", // Thay 'User' bằng tên của mô hình người dùng nếu cần
+      ref: "User",
     },
     token: {
       type: String,
@@ -20,5 +26,5 @@ const tokenSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Token = mongoose.model("Token", tokenSchema, "Token");
+const Token = mongoose.model<IToken>("Token", tokenSchema);
 export default Token;

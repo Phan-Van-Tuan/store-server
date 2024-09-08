@@ -6,7 +6,7 @@ import {
   getAll,
 } from "../controllers/payment.controler";
 
-let router = Router();
+const router = Router();
 
 // router.post("/generate_qrcode", generateQR);
 router.post("/create_payment", createPayment);
