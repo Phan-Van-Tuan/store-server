@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
-import _User from "../models/user.model";
+import _User, { IUser } from "../models/user.model";
 import _Token from "../models/token.model";
 import generateEmail from "../utils/mail.util";
 import { config } from "../configs/variable.config";
@@ -63,13 +63,14 @@ function verifyOTP(token: string, otp: number) {
 // ------------------------ MAIN FUNCTION ----------------------------
 // --------------------------- AUTH ----------------------------------
 class AuthService {
-  async signup(userName: string, email: string, password: string) {
+  async signup(iUser: IUser) {
     try {
-      if (!userName || !email || !password) {
+      const { username, email, password } = iUser;
+      if (!username || !email || !password) {
         throw new BadRequestError("All fields are required");
       }
 
-      if (!regexUsername.test(userName)) {
+      if (!regexUsername.test(username)) {
         throw new BadRequestError(
           "Username is not valid: Usernames contain only alphabetic characters (a-z, A-Z), numbers (0-9), underscores (_), periods (.), and hyphens (-). Usernames do not contain spaces and do not begin with special characters."
         );
@@ -92,8 +93,8 @@ class AuthService {
 
       const hashPassword = await bcrypt.hash(password, config.salt);
       const newUser = new _User({
-        username: userName,
-        email: email,
+        username: username,
+        email: email.toLowerCase(),
         password: hashPassword,
       });
 

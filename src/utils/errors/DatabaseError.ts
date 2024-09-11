@@ -6,7 +6,7 @@ export class DatabaseError extends CustomError {
     super("Database crashed. Try a later.");
     Object.setPrototypeOf(this, DatabaseError.prototype);
   }
-  serialize(): { messager: string } {
-    return { messager: "Database crashed. Try a later." };
+  serialize(): { message: string } {
+    return { message: "Database crashed. Try a later." };
   }
 }

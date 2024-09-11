@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-interface IPayment extends Document {
+export interface IPayment extends Document {
   orderId: mongoose.Schema.Types.ObjectId;
   amount: number;
   method: "credit_card" | "paypal" | "bank_transfer";

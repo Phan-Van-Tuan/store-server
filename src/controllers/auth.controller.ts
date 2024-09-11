@@ -5,13 +5,8 @@ import { decodePayload } from "../utils/interfaces/payload.interface";
 class AuthController {
   async signup(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userName, email, password } = req.body;
-      const newUser = await AuthService.signup(
-        userName,
-        email.toLowerCase(),
-        password
-      );
-      return res.status(200).json({
+      const newUser = await AuthService.signup(req.body);
+      return res.status(201).json({
         status: "Success",
         message: "Sign up successfully",
         data: { newUser },

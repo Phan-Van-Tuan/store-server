@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-interface IOrder extends Document {
+export interface IOrder extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   products: { productId: mongoose.Schema.Types.ObjectId; quantity: number }[];
   totalAmount: number;

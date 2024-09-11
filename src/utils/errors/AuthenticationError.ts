@@ -6,7 +6,7 @@ export class AuthenticationError extends CustomError {
     super("user unauthenticated");
     Object.setPrototypeOf(this, AuthenticationError.prototype);
   }
-  serialize(): { messager: string } {
-    return { messager: "user unauthenticated" };
+  serialize(): { message: string } {
+    return { message: "user unauthenticated" };
   }
 }

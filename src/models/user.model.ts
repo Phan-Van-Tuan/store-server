@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 // Interface kế thừa từ mongoose.Document để tương thích với Mongoose
-interface IUser extends Document {
+export interface IUser extends Document {
   username: string;
   email: string;
   password: string;

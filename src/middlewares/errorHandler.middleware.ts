@@ -11,7 +11,7 @@ export const errorHandler: ErrorRequestHandler = (
   if (err instanceof CustomError) {
     return res.status(err.StatusCode).json({
       status: "Error",
-      message: err.serialize(),
+      message: err.message,
       error: err,
     });
   }

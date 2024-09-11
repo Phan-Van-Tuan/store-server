@@ -1,26 +1,65 @@
 // src/services/productService.ts
-import _Product from "../models/product.model";
+import mongoose from "mongoose";
+import _Product, { IProduct } from "../models/product.model";
+import { BadRequestError } from "../utils/errors/BadRequestError";
+import { NotFoundError } from "../utils/errors/NotFoundError";
 
 class ProductService {
   async getAllProducts() {
-    return _Product.find();
+    const products = await _Product.find();
+    if (!products) {
+      throw new NotFoundError();
+    }
+    return products;
   }
 
   async getProductById(productId: string) {
-    return _Product.findById(productId);
+    if (!mongoose.isObjectIdOrHexString(productId)) {
+      throw new BadRequestError("Product id is invalid");
+    }
+    const product = await _Product.findById(productId);
+    if (!product) {
+      throw new NotFoundError();
+    }
+    return product;
   }
 
-  async createProduct(data: any) {
-    const product = new _Product(data);
-    return product.save();
+  async createProduct(iProduct: IProduct) {
+    if (
+      !iProduct.name ||
+      !iProduct.description ||
+      !iProduct.price ||
+      !iProduct.quantity ||
+      !iProduct.category
+    ) {
+      throw new BadRequestError("All field are required");
+    }
+    const product = new _Product(iProduct);
+    return await product.save();
   }
 
-  async updateProduct(productId: string, data: any) {
-    return _Product.findByIdAndUpdate(productId, data, { new: true });
+  async updateProduct(productId: string, iProduct: IProduct) {
+    if (!mongoose.isObjectIdOrHexString(productId)) {
+      throw new BadRequestError("Product id is invalid");
+    }
+    const product = await _Product.findByIdAndUpdate(productId, iProduct, {
+      new: true,
+    });
+    if (!product) {
+      throw new NotFoundError();
+    }
+    return product;
   }
 
   async deleteProduct(productId: string) {
-    return _Product.findByIdAndDelete(productId);
+    if (!mongoose.isObjectIdOrHexString(productId)) {
+      throw new BadRequestError("Product id is invalid");
+    }
+    const product = await _Product.findByIdAndDelete(productId);
+    if (!product) {
+      throw new NotFoundError();
+    }
+    return product;
   }
 }
 

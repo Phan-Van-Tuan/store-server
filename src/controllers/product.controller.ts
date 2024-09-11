@@ -1,62 +1,73 @@
-// src/controllers/productController.ts
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import ProductService from "../services/product.service";
 
 class ProductController {
-  async getAllProducts(req: Request, res: Response) {
+  async getAllProducts(req: Request, res: Response, next: NextFunction) {
     try {
       const products = await ProductService.getAllProducts();
-      res.json(products);
+      res.status(200).json({
+        status: "Success",
+        message: "Products retrieved successfully",
+        data: products,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 
-  async getProductById(req: Request, res: Response) {
+  async getProductById(req: Request, res: Response, next: NextFunction) {
     try {
       const product = await ProductService.getProductById(req.params.id);
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json(product);
+      res.status(200).json({
+        status: "Success",
+        message: "Product retrieved successfully",
+        data: product,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 
-  async createProduct(req: Request, res: Response) {
+  async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const product = await ProductService.createProduct(req.body);
-      res.status(201).json(product);
+      await product.save();
+      res.status(201).json({
+        status: "Success",
+        message: "Product created",
+        data: product,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 
-  async updateProduct(req: Request, res: Response) {
+  async updateProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const updatedProduct = await ProductService.updateProduct(
         req.params.id,
         req.body
       );
-      if (!updatedProduct) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json(updatedProduct);
+      res.status(200).json({
+        status: "Success",
+        message: "Product updated",
+        data: updatedProduct,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 
-  async deleteProduct(req: Request, res: Response) {
+  async deleteProduct(req: Request, res: Response, next: NextFunction) {
     try {
       const deletedProduct = await ProductService.deleteProduct(req.params.id);
-      if (!deletedProduct) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json({ message: "Product deleted" });
+      res.status(200).json({
+        status: "Success",
+        message: "Product deleted",
+        data: deletedProduct,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+      next(error);
     }
   }
 }

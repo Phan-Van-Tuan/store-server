@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-interface IShipping extends Document{
+export interface IShipping extends Document{
   orderId: mongoose.Schema.Types.ObjectId;
   address: string;
   status: "pending" | "shipped" | "delivered";
