@@ -1,7 +1,6 @@
-import { timeStamp } from "console";
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-interface IProduct {
+interface IProduct extends Document {
   name: string;
   description: string;
   price: number;
@@ -9,7 +8,7 @@ interface IProduct {
   category: string;
 }
 
-const productSchema = new mongoose.Schema<IProduct>(
+const productSchema: Schema = new mongoose.Schema<IProduct>(
   {
     name: { type: String, required: true },
     description: { type: String },

@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-interface ICart {
+interface ICart extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   products: { productId: mongoose.Schema.Types.ObjectId; quantity: number }[];
 }
 
-const cartSchema = new mongoose.Schema<ICart>({
+const cartSchema: Schema = new mongoose.Schema<ICart>({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   products: [
     {

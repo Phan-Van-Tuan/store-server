@@ -1,16 +1,11 @@
 import { Router } from "express";
-import {
-  //   generateQR,
-  createPayment,
-  vnpayReturn,
-  getAll,
-} from "../controllers/payment.controler";
+import PaymentController from "../controllers/payment.controler";
 
 const router = Router();
 
 // router.post("/generate_qrcode", generateQR);
-router.post("/create_payment", createPayment);
-router.get("/vnpay_return", vnpayReturn);
-router.get("/", getAll);
+router.post("/create_payment", PaymentController.createPayment);
+router.get("/vnpay_return", PaymentController.vnpayReturn);
+router.get("/", PaymentController.getAll);
 
 export default router;

@@ -6,12 +6,16 @@ class AuthController {
   async signup(req: Request, res: Response, next: NextFunction) {
     try {
       const { userName, email, password } = req.body;
-      const token = await AuthService.signup(
+      const newUser = await AuthService.signup(
         userName,
         email.toLowerCase(),
         password
       );
-      return res.status(200).json(token);
+      return res.status(200).json({
+        status: "Success",
+        message: "Sign up successfully",
+        data: { newUser },
+      });
     } catch (error) {
       next(error);
     }
@@ -21,7 +25,11 @@ class AuthController {
     try {
       const { email, password } = req.body;
       const result = await AuthService.signin(email.toLowerCase(), password);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Sign in successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -31,7 +39,11 @@ class AuthController {
     try {
       const { refreshToken } = req.body;
       const result = await AuthService.refreshToken(refreshToken);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Refresh token successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -42,7 +54,11 @@ class AuthController {
       const { refreshToken } = req.body;
       const authHeader = req.headers["authorization"] || "";
       const result = await AuthService.signout(authHeader, refreshToken);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Sign out successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -52,7 +68,11 @@ class AuthController {
     try {
       const { email } = req.body;
       const result = AuthService.requestVerify("Verify Account", email);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Request sent successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -62,7 +82,11 @@ class AuthController {
     try {
       const { token, otp } = req.body;
       const result = await AuthService.verifyEmail(token, otp);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Verify account successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -72,7 +96,11 @@ class AuthController {
     try {
       const { email } = req.body;
       const result = AuthService.requestVerify("Reset Password", email);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Request sent successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -82,7 +110,11 @@ class AuthController {
     try {
       const { token, otp, password } = req.body;
       const result = await AuthService.resetPassword(token, otp, password);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Reset password successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -92,7 +124,11 @@ class AuthController {
     try {
       const { email } = req.body;
       const result = AuthService.requestVerify("Login by OTP", email);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Request sent successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -102,7 +138,11 @@ class AuthController {
     try {
       const { token, otp } = req.body;
       const result = await AuthService.forgotPassword(token, otp);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Sign up by otp successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }
@@ -117,7 +157,11 @@ class AuthController {
         currentPassword,
         newPassword
       );
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "Success",
+        message: "Change password successfully",
+        data: result,
+      });
     } catch (error) {
       next(error);
     }

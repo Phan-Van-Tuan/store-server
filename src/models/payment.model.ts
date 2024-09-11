@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-interface IPayment {
+interface IPayment extends Document {
   orderId: mongoose.Schema.Types.ObjectId;
   amount: number;
   method: "credit_card" | "paypal" | "bank_transfer";
@@ -8,7 +8,7 @@ interface IPayment {
   createdAt: Date;
 }
 
-const paymentSchema = new mongoose.Schema<IPayment>({
+const paymentSchema: Schema = new mongoose.Schema<IPayment>({
   orderId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Order",

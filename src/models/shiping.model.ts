@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-interface IShipping {
+interface IShipping extends Document{
   orderId: mongoose.Schema.Types.ObjectId;
   address: string;
   status: "pending" | "shipped" | "delivered";
   shippedAt: Date;
 }
 
-const shippingSchema = new mongoose.Schema<IShipping>({
+const shippingSchema: Schema = new mongoose.Schema<IShipping>({
   orderId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Order",

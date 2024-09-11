@@ -1,26 +1,26 @@
 // src/services/productService.ts
-import Product from "../models/product.model";
+import _Product from "../models/product.model";
 
 class ProductService {
   async getAllProducts() {
-    return Product.find();
+    return _Product.find();
   }
 
   async getProductById(productId: string) {
-    return Product.findById(productId);
+    return _Product.findById(productId);
   }
 
   async createProduct(data: any) {
-    const product = new Product(data);
+    const product = new _Product(data);
     return product.save();
   }
 
   async updateProduct(productId: string, data: any) {
-    return Product.findByIdAndUpdate(productId, data, { new: true });
+    return _Product.findByIdAndUpdate(productId, data, { new: true });
   }
 
   async deleteProduct(productId: string) {
-    return Product.findByIdAndDelete(productId);
+    return _Product.findByIdAndDelete(productId);
   }
 }
 

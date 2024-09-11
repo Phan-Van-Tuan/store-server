@@ -99,8 +99,8 @@ class AuthService {
 
       await newUser.save();
       return newUser;
-    } catch (e) {
-      throw e;
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -178,7 +178,7 @@ class AuthService {
       const accessToken = authHeader.replace(bearer, "");
       // await BlackList.push_token(accessToken, "logout");
 
-      return "Log out successfully";
+      return 0;
     } catch (error) {
       throw error;
     }
@@ -204,7 +204,7 @@ class AuthService {
       user.password = password;
       await user.save();
 
-      return "Changed password successfully";
+      return 0;
     } catch (error) {
       throw error;
     }
@@ -262,7 +262,7 @@ class AuthService {
           const newPassword = await bcrypt.hash(password, config.salt);
           user.password = newPassword;
           await user.save();
-          return "Reset password successfully";
+          return 0;
         }
         throw new Error("Missing password!");
       }
