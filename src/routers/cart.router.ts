@@ -1,12 +1,11 @@
 import { Router } from "express";
-import CategoryController from "../controllers/category.controller";
+import CartController from "../controllers/cart.controller";
 
 const router = Router();
 
-router.get("/", CategoryController.getAllCategories);
-router.get("/:id", CategoryController.getCategoryById);
-router.post("/", CategoryController.createCategory);
-router.put("/:id", CategoryController.updateCategory);
-router.delete("/:id", CategoryController.deleteCategory);
+router.get("/", CartController.getAllCarts);
+router.post("/", CartController.createCart);
+router.put("/:id", CartController.updateCart);
+router.delete("/:id", CartController.deleteCart);
 
 export default router;
