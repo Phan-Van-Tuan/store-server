@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import _User from "../models/user.model";
+import _User from "../models/account.model";
 import _Payment from "../models/payment.model";
 
 import PaymentService from "../services/payment.service";

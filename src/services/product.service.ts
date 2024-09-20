@@ -13,6 +13,34 @@ class ProductService {
     return products;
   }
 
+  async getProductsByStoreId(storeId: string) {
+    if (!mongoose.isObjectIdOrHexString(storeId)) {
+      throw new BadRequestError("Store id is invalid");
+    }
+    const products = await _Product.find({ storeId: storeId });
+    if (!products || products.length === 0) {
+      throw new NotFoundError();
+    }
+    return products;
+  }
+
+  async getProductsByCategory(categoryId: string) {
+    if (!mongoose.isObjectIdOrHexString(categoryId)) {
+      throw new BadRequestError("Category id is invalid");
+    }
+
+    // Tìm kiếm sản phẩm theo categoryId
+    const products = await _Product.find({
+      "categories.categoryId": categoryId,
+    });
+
+    if (!products || products.length === 0) {
+      throw new NotFoundError();
+    }
+
+    return products;
+  }
+
   async getProductById(productId: string) {
     if (!mongoose.isObjectIdOrHexString(productId)) {
       throw new BadRequestError("Product id is invalid");
@@ -26,11 +54,12 @@ class ProductService {
 
   async createProduct(iProduct: IProduct) {
     if (
+      !iProduct.storeId ||
       !iProduct.name ||
       !iProduct.description ||
       !iProduct.price ||
       !iProduct.quantity ||
-      !iProduct.category
+      !iProduct.categories
     ) {
       throw new BadRequestError("All field are required");
     }

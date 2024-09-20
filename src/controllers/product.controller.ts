@@ -15,6 +15,32 @@ class ProductController {
     }
   }
 
+  async getProductByStoreId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const products = await ProductService.getProductsByStoreId(req.params.id);
+      res.status(200).json({
+        status: "Success",
+        message: "Products retrieved successfully",
+        data: products,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getProductsByCategory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const products = await ProductService.getProductsByCategory(req.params.id);
+      res.status(200).json({
+        status: "Success",
+        message: "Products retrieved successfully",
+        data: products,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getProductById(req: Request, res: Response, next: NextFunction) {
     try {
       const product = await ProductService.getProductById(req.params.id);

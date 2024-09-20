@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
-import _User, { IUser } from "../models/user.model";
+import _User, { IUser } from "../models/account.model";
 import _Token from "../models/token.model";
 import generateEmail from "../utils/mail.util";
 import { config } from "../configs/variable.config";
