@@ -5,6 +5,8 @@ export interface IReview extends Document {
   userId: mongoose.Schema.Types.ObjectId;
   rating: number;
   comment: string;
+  userName?: string;
+  userAvatar?: string;
 }
 
 const reviewSchema: Schema = new mongoose.Schema<IReview>(

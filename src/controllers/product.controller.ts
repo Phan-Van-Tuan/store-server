@@ -30,7 +30,9 @@ class ProductController {
 
   async getProductsByCategory(req: Request, res: Response, next: NextFunction) {
     try {
-      const products = await ProductService.getProductsByCategory(req.params.id);
+      const products = await ProductService.getProductsByCategory(
+        req.params.id
+      );
       res.status(200).json({
         status: "Success",
         message: "Products retrieved successfully",

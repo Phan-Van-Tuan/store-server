@@ -147,7 +147,7 @@ class AuthController {
     try {
       const user = req.currentUser as decodePayload;
       const { currentPassword, newPassword } = req.body;
-      const result = AuthService.changePassword(
+      const result = await AuthService.changePassword(
         user.userId,
         currentPassword,
         newPassword
@@ -155,6 +155,20 @@ class AuthController {
       return res.status(200).json({
         status: "Success",
         message: "Change password successfully",
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.currentUser as decodePayload;
+      const result = await AuthService.getProfile(user.userId);
+      return res.status(200).json({
+        status: "Success",
+        message: "Get my profile successfully",
         data: result,
       });
     } catch (error) {

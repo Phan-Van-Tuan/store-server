@@ -13,6 +13,7 @@ import {
   regexUsername,
 } from "../utils/validate.util";
 import { AuthenticationError } from "../utils/errors/AuthenticationError";
+import mongoose from "mongoose";
 
 // -------------- CHILD FUNCTION ----------------
 async function sendEmail(
@@ -294,6 +295,21 @@ class AuthService {
         accessToken: accessToken,
         refreshToken: refreshToken,
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProfile(userId: string) {
+    try {
+      if (!mongoose.isObjectIdOrHexString(userId)) {
+        throw new BadRequestError("User id is invalid");
+      }
+      const user = await _User.findById(userId);
+      if (!user) {
+        throw new Error("User is not found!");
+      }
+      return user;
     } catch (error) {
       throw error;
     }

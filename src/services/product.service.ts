@@ -1,6 +1,8 @@
 // src/services/productService.ts
 import mongoose from "mongoose";
 import _Product, { IProduct } from "../models/product.model";
+import _User, { IUser } from "../models/account.model";
+import _Review from "../models/review.model";
 import { BadRequestError } from "../utils/errors/BadRequestError";
 import { NotFoundError } from "../utils/errors/NotFoundError";
 
@@ -49,7 +51,21 @@ class ProductService {
     if (!product) {
       throw new NotFoundError();
     }
-    return product;
+    const store = await _User.findById(product.storeId);
+    const feedbacks = await _Review.find({ productId: productId });
+    const feedbacksWithUserDetails = await Promise.all(
+      feedbacks.map(async (feedback) => {
+        const user = await _User.findById(feedback.userId);
+        const feedbackObj = feedback.toObject(); // Chuyển feedback từ Document sang Object
+        if (user) {
+          feedbackObj.userName = user.username;
+          feedbackObj.userAvatar = user.image; // Thêm thông tin user vào feedback
+        }
+        return feedbackObj;
+      })
+    );
+
+    return { product, store, feedbacks: feedbacksWithUserDetails };
   }
 
   async createProduct(iProduct: IProduct) {
