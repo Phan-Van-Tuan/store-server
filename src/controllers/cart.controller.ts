@@ -1,26 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import CartService from "../services/cart.service";
+import { decodePayload } from "../utils/interfaces/payload.interface";
 
 class CartController {
-  async getAllCarts(req: Request, res: Response, next: NextFunction) {
+  async getAllCart(req: Request, res: Response, next: NextFunction) {
     try {
-      const carts = await CartService.getAllCarts();
+      const user = req.currentUser as decodePayload;
+      const cart = await CartService.getCart(user.userId);
       res.status(200).json({
         status: "Success",
         message: "Carts retrieved successfully",
-        data: carts,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async createCart(req: Request, res: Response, next: NextFunction) {
-    try {
-      const cart = await CartService.createCart(req.body);
-      res.status(201).json({
-        status: "Success",
-        message: "Cart created successfully",
         data: cart,
       });
     } catch (error) {
@@ -28,9 +17,36 @@ class CartController {
     }
   }
 
+  // async addProductToCart(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const user = req.currentUser as decodePayload;
+  //     const { productId, quantity } = req.body;
+
+  //     const updatedCart = await CartService.addProductToCart(
+  //       user.userId,
+  //       productId,
+  //       quantity
+  //     );
+
+  //     res.status(200).json({
+  //       status: "Success",
+  //       message: "Product added to cart successfully",
+  //       data: updatedCart,
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
   async updateCart(req: Request, res: Response, next: NextFunction) {
     try {
-      const updatedCart = await CartService.updateCart(req.params.id, req.body);
+      const user = req.currentUser as decodePayload;
+      const { productId, quantity } = req.body;
+      const updatedCart = await CartService.updateCart(
+        user.userId,
+        productId,
+        quantity
+      );
       res.status(200).json({
         status: "Success",
         message: "Cart updated successfully",

@@ -9,6 +9,7 @@ export const errorHandler: ErrorRequestHandler = (
   next: NextFunction
 ) => {
   logger.error("[ErrorRequestHandler] " + err);
+  console.log(err);
   if (err instanceof CustomError) {
     return res.status(err.StatusCode).json({
       status: "Error",

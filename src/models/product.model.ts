@@ -6,6 +6,7 @@ export interface IProduct extends Document {
   description: string;
   price: number;
   quantity: number;
+  rate?: number;
   sold: number;
   categories: string[];
 }

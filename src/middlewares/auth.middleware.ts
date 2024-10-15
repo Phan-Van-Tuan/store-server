@@ -9,7 +9,7 @@ const auth = (role?: string) => {
       const authHeader = req.headers["authorization"];
       const bearer = "Bearer ";
 
-      console.log(authHeader);
+      // console.log(authHeader);
 
       if (!authHeader || !authHeader.startsWith(bearer)) {
         throw new AuthenticationError();
