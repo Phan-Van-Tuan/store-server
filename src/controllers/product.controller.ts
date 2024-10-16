@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ProductService from "../services/product.service";
+import { decodePayload } from "../utils/interfaces/payload.interface";
+import { IProduct } from "../models/product.model";
 
 class ProductController {
   async getAllProducts(req: Request, res: Response, next: NextFunction) {
@@ -58,8 +60,8 @@ class ProductController {
 
   async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const product = await ProductService.createProduct(req.body);
-      await product.save();
+      const user = req.currentUser as decodePayload;
+      const product = await ProductService.createProduct(user.userId, req.body);
       res.status(201).json({
         status: "Success",
         message: "Product created",
@@ -72,7 +74,9 @@ class ProductController {
 
   async updateProduct(req: Request, res: Response, next: NextFunction) {
     try {
+      const user = req.currentUser as decodePayload;
       const updatedProduct = await ProductService.updateProduct(
+        user.userId,
         req.params.id,
         req.body
       );
@@ -88,7 +92,12 @@ class ProductController {
 
   async deleteProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const deletedProduct = await ProductService.deleteProduct(req.params.id);
+      const user = req.currentUser as decodePayload;
+      const deletedProduct = await ProductService.deleteProduct(
+        user.userId,
+        req.body,
+        req.params.id
+      );
       res.status(200).json({
         status: "Success",
         message: "Product deleted",

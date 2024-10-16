@@ -1,5 +1,5 @@
 // src/services/productService.ts
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import _Product, { IProduct } from "../models/product.model";
 import _User, { IUser } from "../models/account.model";
 import _Review from "../models/review.model";
@@ -68,24 +68,25 @@ class ProductService {
     return { product, store, feedbacks: feedbacksWithUserDetails };
   }
 
-  async createProduct(iProduct: IProduct) {
+  async createProduct(userId: string, iProduct: IProduct) {
     if (
-      !iProduct.storeId ||
+      !userId ||
       !iProduct.name ||
       !iProduct.description ||
-      !iProduct.price ||
-      !iProduct.quantity ||
+      iProduct.price <= 0 ||
+      iProduct.quantity <= 0 ||
       !iProduct.categories
     ) {
       throw new BadRequestError("All field are required");
     }
+    iProduct.storeId = userId as unknown as ObjectId;
     const product = new _Product(iProduct);
     return await product.save();
   }
 
-  async updateProduct(productId: string, iProduct: IProduct) {
-    if (!mongoose.isObjectIdOrHexString(productId)) {
-      throw new BadRequestError("Product id is invalid");
+  async updateProduct(userId: string, productId: string, iProduct: IProduct) {
+    if (userId != iProduct.storeId.toString()) {
+      throw new BadRequestError("forbidden");
     }
     const product = await _Product.findByIdAndUpdate(productId, iProduct, {
       new: true,
@@ -96,9 +97,9 @@ class ProductService {
     return product;
   }
 
-  async deleteProduct(productId: string) {
-    if (!mongoose.isObjectIdOrHexString(productId)) {
-      throw new BadRequestError("Product id is invalid");
+  async deleteProduct(userId: string, storeId: string, productId: string) {
+    if (userId != storeId) {
+      throw new BadRequestError("forbidden");
     }
     const product = await _Product.findByIdAndDelete(productId);
     if (!product) {
