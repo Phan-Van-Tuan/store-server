@@ -95,8 +95,8 @@ class ProductController {
       const user = req.currentUser as decodePayload;
       const deletedProduct = await ProductService.deleteProduct(
         user.userId,
-        req.body,
-        req.params.id
+        req.params.storeId,
+        req.params.productId
       );
       res.status(200).json({
         status: "Success",

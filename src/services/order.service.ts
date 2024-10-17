@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { NotFoundError } from "../utils/errors/NotFoundError";
 import { BadRequestError } from "../utils/errors/BadRequestError";
 import _Order, { IOrder } from "../models/order.model";
@@ -15,18 +15,30 @@ class OrderService {
     return orders;
   }
 
-  async createOrder(iOrder: IOrder) {
+  async getOrderById(orderId: string) {
+    const order = await _Order
+      .findById(orderId)
+      .populate("products.productId freeship discount");
+    if (!order) {
+      throw new NotFoundError();
+    }
+    return order;
+  }
+
+  async createOrder(userId: String, iOrder: IOrder) {
     if (
       !iOrder.userId ||
       !iOrder.products ||
-      !iOrder.totalAmount ||
-      !iOrder.note ||
-      !iOrder.status
+      iOrder.totalAmount > 0 ||
+      !iOrder.status ||
+      !iOrder.paymentMethod
     ) {
       throw new BadRequestError("All field are required");
     }
+    iOrder.userId = userId as unknown as ObjectId;
     const order = new _Order(iOrder);
-    return order.save();
+    await order.save();
+    return order;
   }
 
   async updateOrder(orderId: string, iOrder: IOrder) {

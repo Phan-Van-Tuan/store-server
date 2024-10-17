@@ -1,37 +1,101 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import OrderService from "../services/order.service";
+import { decodePayload } from "../utils/interfaces/payload.interface";
 
-// Lấy danh sách đơn hàng
-export const getOrders = (req: Request, res: Response, next: NextFunction) => {
-  // Logic lấy danh sách đơn hàng từ cơ sở dữ liệu
-  res.send("Danh sách đơn hàng");
-};
+class OrderController {
+  // Lấy tất cả các đơn hàng
+  async getAllOrderByUserId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = req.currentUser as decodePayload;
+      const orders = await OrderService.getAllOrderByUserId(user.userId);
+      res.status(200).json({
+        status: "Success",
+        message: "Orders retrieved successfully",
+        data: orders,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-// Tạo một đơn hàng mới
-export const createOrder = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // Logic tạo đơn hàng mới
-  res.send("Tạo đơn hàng thành công");
-};
+  // Lấy thông tin một đơn hàng theo ID
+  async getOrderById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderId = req.params.id;
+      const order = await OrderService.getOrderById(orderId);
+      if (!order) {
+        return res.status(404).json({
+          status: "Error",
+          message: "Order not found",
+        });
+      }
+      res.status(200).json({
+        status: "Success",
+        message: "Order retrieved successfully",
+        data: order,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-// Cập nhật thông tin đơn hàng
-export const updateOrder = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // Logic cập nhật đơn hàng
-  res.send(`Cập nhật đơn hàng ${req.params.id}`);
-};
+  // Tạo một đơn hàng mới
+  async createOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderData = req.body;
+      const user = req.currentUser as decodePayload;
+      const newOrder = await OrderService.createOrder(user.userId, orderData);
+      res.status(201).json({
+        status: "Success",
+        message: "Order created successfully",
+        data: newOrder,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-// Xóa đơn hàng
-export const deleteOrder = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // Logic xóa đơn hàng
-  res.send(`Xóa đơn hàng ${req.params.id}`);
-};
+  // Cập nhật một đơn hàng
+  async updateOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderId = req.params.id;
+      const updateData = req.body;
+      const updatedOrder = await OrderService.updateOrder(orderId, updateData);
+      if (!updatedOrder) {
+        return res.status(404).json({
+          status: "Error",
+          message: "Order not found",
+        });
+      }
+      res.status(200).json({
+        status: "Success",
+        message: "Order updated successfully",
+        data: updatedOrder,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Xóa một đơn hàng
+  async deleteOrder(req: Request, res: Response, next: NextFunction) {
+    try {
+      const orderId = req.params.id;
+      const deletedOrder = await OrderService.deleteOrder(orderId);
+      if (!deletedOrder) {
+        return res.status(404).json({
+          status: "Error",
+          message: "Order not found",
+        });
+      }
+      res.status(200).json({
+        status: "Success",
+        message: "Order deleted successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export default new OrderController();

@@ -11,6 +11,10 @@ router.get("/get-by-category/:id", ProductController.getProductsByCategory);
 router.get("/:id", ProductController.getProductById);
 router.post("/", auth("store"), ProductController.createProduct);
 router.put("/:id", auth("store"), ProductController.updateProduct);
-router.delete("/:id", auth("store"), ProductController.deleteProduct);
+router.delete(
+  "/:storeId/:productId",
+  auth("store"),
+  ProductController.deleteProduct
+);
 
 export default router;

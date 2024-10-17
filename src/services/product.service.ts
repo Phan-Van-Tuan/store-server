@@ -81,11 +81,13 @@ class ProductService {
     }
     iProduct.storeId = userId as unknown as ObjectId;
     const product = new _Product(iProduct);
-    return await product.save();
+    await product.save();
+    const products = await _Product.find({ storeId: userId });
+    return products;
   }
 
   async updateProduct(userId: string, productId: string, iProduct: IProduct) {
-    if (userId != iProduct.storeId.toString()) {
+    if (userId != `${iProduct.storeId}`) {
       throw new BadRequestError("forbidden");
     }
     const product = await _Product.findByIdAndUpdate(productId, iProduct, {
@@ -94,10 +96,12 @@ class ProductService {
     if (!product) {
       throw new NotFoundError();
     }
-    return product;
+    const products = await _Product.find({ storeId: userId });
+    return products;
   }
 
   async deleteProduct(userId: string, storeId: string, productId: string) {
+    console.log(userId, storeId, productId);
     if (userId != storeId) {
       throw new BadRequestError("forbidden");
     }
@@ -105,7 +109,8 @@ class ProductService {
     if (!product) {
       throw new NotFoundError();
     }
-    return product;
+    const products = await _Product.find({ storeId: userId });
+    return products;
   }
 }
 
