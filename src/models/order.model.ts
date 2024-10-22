@@ -9,7 +9,8 @@ export interface IOrder extends Document {
   note?: string;
   status: "pending" | "shipped" | "wait_for_review" | "finish";
   paymentStatus: "pending" | "paid" | "failed";
-  paymentMethod: "COD" | "vnpay";
+  paymentMethod: "cod" | "vnpay";
+  createdAt?: string;
 }
 
 const orderSchema: Schema = new mongoose.Schema<IOrder>(
@@ -45,7 +46,7 @@ const orderSchema: Schema = new mongoose.Schema<IOrder>(
     },
     paymentMethod: {
       type: String,
-      enum: ["COD", "vnpay"],
+      enum: ["cod", "vnpay"],
       required: true,
     },
   },
